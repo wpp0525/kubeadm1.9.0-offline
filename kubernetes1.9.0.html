@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<!-- saved from url=(0037)http://blog.51cto.com/cstsncv/2061943 -->
+<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link type="favicon" rel="shortcut icon" href="http://blog.51cto.com/favicon.ico">
+        <title>kubernetes1.9离线部署-不要超过24个字符-51CTO博客</title>
+    <meta name="keywords" content="kube,离线部署">
+<meta name="description" content="环境Master:192.168.20.93Node1:192.168.20.94Node2:192.168.20.95采用kubeadm安装kubeadm为kubernetes官方推荐的自动化部署工具，他将kubernetes的组件以pod的形式部署在master和node节点上，并自动完成证书认证等操作。因为kubeadm默认要从google的镜像仓库下载镜像，但目前国内无法访问google镜">    <link href="./kubernetes1.9.0_files/header.css" rel="stylesheet"><link href="./kubernetes1.9.0_files/other.css" rel="stylesheet"><link href="./kubernetes1.9.0_files/right.css" rel="stylesheet"><link href="./kubernetes1.9.0_files/blog_details.css" rel="stylesheet"><link href="./kubernetes1.9.0_files/highlight.css" rel="stylesheet">
+    <script type="text/javascript" async="" src="./kubernetes1.9.0_files/vds.js"></script><script src="./kubernetes1.9.0_files/push.js"></script><script src="./kubernetes1.9.0_files/hm.js"></script><script src="./kubernetes1.9.0_files/jquery.min.js"></script><script src="./kubernetes1.9.0_files/cookie.js"></script><script src="./kubernetes1.9.0_files/login.js"></script><script src="./kubernetes1.9.0_files/common.js"></script><script src="./kubernetes1.9.0_files/mbox.js"></script><script src="./kubernetes1.9.0_files/follow.js"></script><script src="./kubernetes1.9.0_files/vip.js"></script><script src="./kubernetes1.9.0_files/share.js"></script><link rel="stylesheet" href="./kubernetes1.9.0_files/share_style0_16.css"></head>
+<body>
+<img src="./kubernetes1.9.0_files/share_default.jpg" border="0" style="width:0; height:0; position:absolute;">
+<!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+  <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+<![endif]-->
+
+<div class="Header">
+  <div class="Page ">
+    <h1 class="Logo"><a href="http://blog.51cto.com/">Logo</a></h1>
+    <ul class="Navigates fl">
+      <li><a href="http://blog.51cto.com/">首页</a></li>
+      <li><a href="http://blog.51cto.com/original">文章</a></li>
+      <li class="">
+        <a class="column-stress" href="http://blog.51cto.com/cloumn/index">专栏</a>
+      </li>
+            <li class="">
+        <a href="http://blog.51cto.com/expert">专家</a>
+      </li>
+            <li><a href="http://blog.51cto.com/blogger/index">我的博客</a></li>
+    </ul>
+    <ul class="Navigates Navigates-right fr">
+      <li class="more maps">
+        <a href="javascript:void(0);">网站导航</a>
+        <div>
+            <a href="http://edu.51cto.com/" target="_blank">学院</a>
+            <a href="http://blog.51cto.com/" target="_blank">博客</a>
+            <a href="http://down.51cto.com/" target="_blank">下载</a>
+            <a href="http://home.51cto.com/" target="_blank">家园</a>
+            <a href="http://bbs.51cto.com/" target="_blank">论坛</a>
+            <a href="http://x.51cto.com/" target="_blank">CTO训练营</a>
+            <a href="http://club.51cto.com/?blog" target="_blank">CTO俱乐部</a>
+            <a href="http://wot.51cto.com/" target="_blank">WOT</a>
+            <a href="http://www.51cto.com/" target="_blank">51CTO</a>
+            <i class="arrow"></i>
+        </div>
+      </li>
+                <li><a href="http://home.51cto.com/user/register?reback=http%253A%252F%252Fblog.51cto.com%252Fcstsncv%252F2061943" target="_self">注册</a></li>
+          <li class="login"><a href="http://blog.51cto.com/user/login?reback=http%3A%2F%2Fblog.51cto.com%2Fcstsncv%2F2061943" target="_self">登录</a></li>
+                        <li class="mRead">
+          <a href="javascript:;">手机阅读</a>
+          <div>
+            <img src="./kubernetes1.9.0_files/blog_qr.png">
+            <p>扫一扫体验手机阅读</p>
+            <i class="arrow"></i>
+          </div>
+        </li>
+            <li class="search"><a href="http://blog.51cto.com/search/index" target="_self">搜索</a></li>
+                  <li class="write"><a href="javascript:;" onclick="Login()">写文章</a></li>
+                  </ul>
+          <div class="clear"></div>
+  </div>
+</div>
+<script>
+    var isLogin = '0';
+    var userId = '';
+    var imgpath = 'http://i2.51cto.com/';
+    var BLOG_URL = 'http://blog.51cto.com/';
+    var msg_num_url = '/index/ajax-msg-num';
+    setTimeout(function(){
+            $.ajax({
+                url:msg_num_url,
+                type:"get",
+                dataType:'json',
+                success:function(res){
+                    if(res.status == '0'){
+                       //
+                       var hasNewMsg = false;
+                       if(res.data.msgNum > 0 && !$('#myMsg i').hasClass('dot')){
+                            $('#myMsg i').addClass('dot');
+                            hasNewMsg = true;
+                       }
+                       if(res.data.notifyNum > 0 && !$('#myNotify i').hasClass('dot')){
+                           $('#myNotify i').addClass('dot');
+                           hasNewMsg = true;
+                       }
+                       if(res.data.recommend_new > 0 && !$('#myRecommend i').hasClass('dot')){
+                           $('#myRecommend i').addClass('dot');
+                           hasNewMsg = true;
+                       }
+                       if(hasNewMsg && !$('#myAllMsg i').hasClass('dot')){
+                           $('#myAllMsg i').addClass('dot');
+                       }
+                    }
+
+                }
+            });
+    },70);
+</script>
+<div class="Content-box" style="min-height: 736px;">
+    	<link rel="stylesheet" href="./kubernetes1.9.0_files/mdeShow.css">
+<div class="Content Index" style="padding-bottom: 50px;">
+	<div class="Page">
+		<!-- left start -->
+		<div class="Left fl">
+			<div class="artical-Left">
+				<div class="crumbs">
+                													<span><a href="http://blog.51cto.com/cstsncv">不要超过24个字符</a></span>
+                							<em>&gt;</em>						<span><a href="http://blog.51cto.com/cstsncv/category7.html">Linux 虚拟化</a></span>
+                							<em>&gt;</em>						<span>正文</span>
+                						<div class="clear"></div>
+				</div>
+				<h1 class="artical-title">kubernetes1.9离线部署									</h1>
+				<div class="artical-title-list">
+										<a href="javascript:;" class="tab original fl">原创</a>
+					<a href="http://blog.51cto.com/cstsncv" class="name fl">cstsncv</a>
+					<span class="fl"></span>
+					<a href="javascript:;" class="time fl">2018-01-17 11:25:43</a>
+					<span class="fl"></span>
+					<a href="http://blog.51cto.com/cstsncv/2061943#comment" class="comment fl">评论(0)</a>
+					<a href="javascript:;" class="read fr">1081人阅读</a>
+					<div class="clear"></div>
+				</div>
+									<div class="artical-content-bak main-content">
+						<div class="con artical-content editor-preview-side"><p>环境<br>Master: 192.168.20.93<br>Node1: 192.168.20.94<br>Node2: 192.168.20.95</p>
+<p>采用kubeadm安装<br>kubeadm为kubernetes官方推荐的自动化部署工具，他将kubernetes的组件以pod的形式部署在master和node节点上，并自动完成证书认证等操作。<br>因为kubeadm默认要从google的镜像仓库下载镜像，但目前国内无法访问google镜像仓库，所以已将镜像下好，只需要将离线包的镜像导入到节点中就可以了.\</p>
+<hr>
+<p><strong>开始安装</strong><br>----所有节点操作:----</p>
+<p>下载:<br>链接：<a href="https://pan.baidu.com/s/1pMdK0Td" rel="nofollow" style="color: rgb(66, 133, 244);">https://pan.baidu.com/s/1pMdK0Td</a> 密码：zjja</p>
+<pre><code class="hljs css"><span class="hljs-selector-attr">[root@master ~]</span># <span class="hljs-selector-tag">md5sum</span> <span class="hljs-selector-tag">k8s_images</span><span class="hljs-selector-class">.tar</span><span class="hljs-selector-class">.bz2</span> 
+<span class="hljs-selector-tag">b60ad6a638eda472b8ddcfa9006315ee</span>  <span class="hljs-selector-tag">k8s_images</span><span class="hljs-selector-class">.tar</span><span class="hljs-selector-class">.bz2</span></code></pre>
+<p>解压下载下来的离线包</p>
+<pre><code class="hljs coffeescript">[root@master ~]<span class="hljs-comment"># tar -jxvf k8s_images.tar.bz2 </span>
+tar (child): bzip2: Cannot exec: No such file <span class="hljs-keyword">or</span> directory
+tar (child): Error <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> recoverable: exiting now
+tar: Child returned status <span class="hljs-number">2</span>
+tar: Error <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> recoverable: exiting now</code></pre>
+<p>原因:没有bzip2解压工具,安装后解压:</p>
+<pre><code class="hljs coffeescript">[root@master ~]<span class="hljs-comment"># yum -y install bzip2 </span>
+[root@master ~]<span class="hljs-comment"># tar -jxvf k8s_images.tar.bz2 </span></code></pre>
+<p>安装启动docker,关闭selinux,firewalld,后<br>配置系统路由参数,防止kubeadm报路由警告:</p>
+<pre><code class="hljs ruby">echo <span class="hljs-string">"
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+"</span> <span class="hljs-meta">&gt;&gt; </span>/etc/sysctl.conf
+sysctl -p</code></pre>
+<p>导入镜像:</p>
+<pre><code class="hljs coffeescript">[root@master <span class="hljs-regexp">/]# cd k8s_images/docker_images/</span>
+[root@master docker_images]<span class="hljs-comment"># for i in `ls`;do docker load &lt; $i ;done</span></code></pre>
+<p>安装kubelet kubeadm kubectl包:</p>
+<pre><code class="hljs css"><span class="hljs-selector-attr">[root@master docker_images]</span># <span class="hljs-selector-tag">cd</span> ..
+<span class="hljs-selector-tag">rpm</span> <span class="hljs-selector-tag">-ivh</span> <span class="hljs-selector-tag">socat-1</span><span class="hljs-selector-class">.7</span><span class="hljs-selector-class">.3</span><span class="hljs-selector-class">.2-2</span><span class="hljs-selector-class">.el7</span><span class="hljs-selector-class">.x86_64</span><span class="hljs-selector-class">.rpm</span>
+<span class="hljs-selector-tag">rpm</span> <span class="hljs-selector-tag">-ivh</span> <span class="hljs-selector-tag">kubernetes-cni-0</span><span class="hljs-selector-class">.6</span><span class="hljs-selector-class">.0-0</span><span class="hljs-selector-class">.x86_64</span><span class="hljs-selector-class">.rpm</span>  <span class="hljs-selector-tag">kubelet-1</span><span class="hljs-selector-class">.9</span><span class="hljs-selector-class">.9-9</span><span class="hljs-selector-class">.x86_64</span><span class="hljs-selector-class">.rpm</span>  <span class="hljs-selector-tag">kubectl-1</span><span class="hljs-selector-class">.9</span><span class="hljs-selector-class">.0-0</span><span class="hljs-selector-class">.x86_64</span><span class="hljs-selector-class">.rpm</span>
+<span class="hljs-selector-tag">rpm</span> <span class="hljs-selector-tag">-ivh</span> <span class="hljs-selector-tag">kubectl-1</span><span class="hljs-selector-class">.9</span><span class="hljs-selector-class">.0-0</span><span class="hljs-selector-class">.x86_64</span><span class="hljs-selector-class">.rpm</span>
+<span class="hljs-selector-tag">rpm</span> <span class="hljs-selector-tag">-ivh</span> <span class="hljs-selector-tag">kubeadm-1</span><span class="hljs-selector-class">.9</span><span class="hljs-selector-class">.0-0</span><span class="hljs-selector-class">.x86_64</span><span class="hljs-selector-class">.rpm</span></code></pre>
+<hr>
+<hr>
+<hr>
+<p><strong>Master节点操作:</strong><br>开始初始化master:</p>
+<pre><code class="hljs coffeescript">[root@master k8s_images]<span class="hljs-comment"># kubeadm init --kubernetes-version=v1.9.0 --pod-network-cidr=10.244.0.0/16</span></code></pre>
+<p>kubernetes默认支持多重网络插件如flannel、weave、calico，这里使用flanne，就必须要设置--pod-network-cidr参数，10.244.0.0/16是kube-flannel.yml里面配置的默认网段，如果需要修改的话，需要把kubeadm init的--pod-network-cidr参数和后面的kube-flannel.yml里面修改成一样的网段就可以了。</p>
+<hr>
+<hr>
+<p>部分会安装失败:<br>发现原来是kubelet默认的cgroup的driver和docker的不一样，docker默认的cgroupfs，kubelet默认为systemd,需要将kubelet的cgroup改为和docker的cgroup相同:  "Environment="KUBELET_CGROUP_ARGS=--cgroup-driver=systemd""</p>
+<pre><code class="hljs makefile">vim /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+[Service]
+Environment=<span class="hljs-string">"KUBELET_KUBECONFIG_ARGS=--bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf"</span>
+Environment=<span class="hljs-string">"KUBELET_SYSTEM_PODS_ARGS=--pod-manifest-path=/etc/kubernetes/manifests --allow-privileged=true"</span>
+Environment=<span class="hljs-string">"KUBELET_NETWORK_ARGS=--network-plugin=cni --cni-conf-dir=/etc/cni/net.d --cni-bin-dir=/opt/cni/bin"</span>
+Environment=<span class="hljs-string">"KUBELET_DNS_ARGS=--cluster-dns=10.96.0.10 --cluster-domain=cluster.local"</span>
+Environment=<span class="hljs-string">"KUBELET_AUTHZ_ARGS=--authorization-mode=Webhook --client-ca-file=/etc/kubernetes/pki/ca.crt"</span>
+Environment=<span class="hljs-string">"KUBELET_CADVISOR_ARGS=--cadvisor-port=0"</span>
+Environment=<span class="hljs-string">"KUBELET_CGROUP_ARGS=--cgroup-driver=systemd"</span>
+Environment=<span class="hljs-string">"KUBELET_CERTIFICATE_ARGS=--rotate-certificates=true --cert-dir=/var/lib/kubelet/pki"</span>
+ExecStart=
+ExecStart=/usr/bin/kubelet $KUBELET_KUBECONFIG_ARGS $KUBELET_SYSTEM_PODS_ARGS $KUBELET_NETWORK_ARGS $KUBELET_DNS_ARGS $KUBELET_AUTHZ_ARGS $KUBELET_CADVISOR_ARGS $KUBELET_CGROUP_ARGS $KUBELET_CERTIFICATE_ARGS$KUBELET_EXTRA_ARGS</code></pre>
+<p>重启reload</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">systemctl</span> daemon-reload &amp;&amp; systemctl restart kubelet</code></pre>
+<p>此时记得将环境reset一下<br>执行:</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">kubeadm</span> reset</code></pre>
+<p>在重新执行:</p>
+<pre><code class="hljs nginx"><span class="hljs-attribute">kubeadm</span> init --kubernetes-version=v1.<span class="hljs-number">9</span>.<span class="hljs-number">0</span> --pod-network-cidr=<span class="hljs-number">10.244.0.0</span>/<span class="hljs-number">16</span></code></pre>
+<hr>
+<hr>
+<p>完成后,将kubeadm join xxx保存下来，等下node节点加入集群需要使用<br>如果忘记了，可以在master上通过kubeadmin token list得到</p>
+<p>此时root用户还不能使用kubelet控制集群需要，按提示配置下环境变量<br>对于非root用户</p>
+<pre><code class="hljs perl"><span class="hljs-keyword">mkdir</span> -p $HOME/.kube
+cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+<span class="hljs-keyword">chown</span> $(id -u):$(id -g) $HOME/.kube/config</code></pre>
+<p>对于root用户</p>
+<pre><code class="hljs javascript"><span class="hljs-keyword">export</span> KUBECONFIG=<span class="hljs-regexp">/etc/</span>kubernetes/admin.conf</code></pre>
+<p>也可以直接放到~/.bash_profile</p>
+<pre><code class="hljs bash"><span class="hljs-built_in">echo</span> <span class="hljs-string">"export KUBECONFIG=/etc/kubernetes/admin.conf"</span> &gt;&gt; ~/.bash_profile</code></pre>
+<p>source一下环境变量</p>
+<pre><code class="hljs bash"><span class="hljs-built_in">source</span> ~/.bash_profile</code></pre>
+<p>kubectl version测试:</p>
+<pre><code class="hljs css"><span class="hljs-selector-attr">[root@master k8s_images]</span># <span class="hljs-selector-tag">kubectl</span> <span class="hljs-selector-tag">version</span>
+<span class="hljs-selector-tag">Client</span> <span class="hljs-selector-tag">Version</span>: <span class="hljs-selector-tag">version</span><span class="hljs-selector-class">.Info</span>{<span class="hljs-attribute">Major</span>:<span class="hljs-string">"1"</span>, Minor:<span class="hljs-string">"9"</span>, GitVersion:<span class="hljs-string">"v1.9.1"</span>, GitCommit:<span class="hljs-string">"3a1c9449a956b6026f075fa3134ff92f7d55f812"</span>, GitTreeState:<span class="hljs-string">"clean"</span>, BuildDate:<span class="hljs-string">"2018-01-04T11:52:23Z"</span>, GoVersion:<span class="hljs-string">"go1.9.2"</span>, Compiler:<span class="hljs-string">"gc"</span>, Platform:<span class="hljs-string">"linux/amd64"</span>}
+<span class="hljs-selector-tag">Server</span> <span class="hljs-selector-tag">Version</span>: <span class="hljs-selector-tag">version</span><span class="hljs-selector-class">.Info</span>{<span class="hljs-attribute">Major</span>:<span class="hljs-string">"1"</span>, Minor:<span class="hljs-string">"9"</span>, GitVersion:<span class="hljs-string">"v1.9.1"</span>, GitCommit:<span class="hljs-string">"3a1c9449a956b6026f075fa3134ff92f7d55f812"</span>, GitTreeState:<span class="hljs-string">"clean"</span>, BuildDate:<span class="hljs-string">"2018-01-04T11:40:06Z"</span>, GoVersion:<span class="hljs-string">"go1.9.2"</span>, Compiler:<span class="hljs-string">"gc"</span>, Platform:<span class="hljs-string">"linux/amd64"</span>}</code></pre>
+<p>安装网络，可以使用flannel、calico、weave、macvlan这里我们用flannel。<br>下载此文件</p>
+<pre><code class="hljs ruby">wget <span class="hljs-symbol">https:</span>/<span class="hljs-regexp">/raw.githubusercontent.com/coreos</span><span class="hljs-regexp">/flannel/v</span><span class="hljs-number">0</span>.<span class="hljs-number">9.1</span>/Documentation/kube-flannel.yml</code></pre>
+<p>或直接使用离线包里面的<br>若要修改网段，需要kubeadm --pod-network-cidr=和这里同步<br>vim kube-flannel.yml<br>修改network项:</p>
+<p>"Network": "10.244.0.0/16",</p>
+<p>执行</p>
+<pre><code class="hljs bash">kubectl create <span class="hljs-_">-f</span> kube-flannel.yml</code></pre>
+<hr>
+<hr>
+<hr>
+<p><strong>node节点操作</strong><br>使用刚刚kubeadm后的kubeadm join --xxx:</p>
+<pre><code class="hljs css"><span class="hljs-selector-attr">[root@node2 ~]</span># <span class="hljs-selector-tag">kubeadm</span> <span class="hljs-selector-tag">join</span> <span class="hljs-selector-tag">--token</span> <span class="hljs-selector-tag">d508f9</span><span class="hljs-selector-class">.bf00f1b8182fdc3f</span> 192<span class="hljs-selector-class">.168</span><span class="hljs-selector-class">.20</span><span class="hljs-selector-class">.93</span><span class="hljs-selector-pseudo">:6443</span> <span class="hljs-selector-tag">--discovery-token-ca-cert-hash</span> <span class="hljs-selector-tag">sha256</span><span class="hljs-selector-pseudo">:3477ff532256a3ffe1915b3a504cd75a10989a49848cc0321cba0277830c2ac3</span></code></pre>
+<p>多次加入报错查看/var/log/message日志.<br>加入成功<br>在<strong>master节点上</strong>check一下:</p>
+<pre><code class="hljs css"><span class="hljs-selector-attr">[root@master k8s_images]</span># <span class="hljs-selector-tag">kubectl</span> <span class="hljs-selector-tag">get</span> <span class="hljs-selector-tag">nodes</span>
+<span class="hljs-selector-tag">NAME</span>               <span class="hljs-selector-tag">STATUS</span>    <span class="hljs-selector-tag">ROLES</span>     <span class="hljs-selector-tag">AGE</span>       <span class="hljs-selector-tag">VERSION</span>
+<span class="hljs-selector-tag">master</span><span class="hljs-selector-class">.flora</span><span class="hljs-selector-class">.com</span>   <span class="hljs-selector-tag">Ready</span>     <span class="hljs-selector-tag">master</span>    19<span class="hljs-selector-tag">h</span>       <span class="hljs-selector-tag">v1</span><span class="hljs-selector-class">.9</span><span class="hljs-selector-class">.1</span>
+<span class="hljs-selector-tag">node1</span><span class="hljs-selector-class">.flora</span><span class="hljs-selector-class">.com</span>    <span class="hljs-selector-tag">Ready</span>     &lt;<span class="hljs-selector-tag">none</span>&gt;    19<span class="hljs-selector-tag">h</span>       <span class="hljs-selector-tag">v1</span><span class="hljs-selector-class">.9</span><span class="hljs-selector-class">.0</span>
+<span class="hljs-selector-tag">node2</span><span class="hljs-selector-class">.flora</span><span class="hljs-selector-class">.com</span>    <span class="hljs-selector-tag">Ready</span>     &lt;<span class="hljs-selector-tag">none</span>&gt;    19<span class="hljs-selector-tag">h</span>       <span class="hljs-selector-tag">v1</span><span class="hljs-selector-class">.9</span><span class="hljs-selector-class">.0</span></code></pre>
+<p>kubernetes会在每个node节点创建flannel和kube-proxy的pod:</p>
+<pre><code class="hljs perl">[root@master k8s_images]<span class="hljs-comment"># kubectl get pods --all-namespaces</span>
+NAMESPACE     NAME                                       READY     STATUS    RESTARTS   AGE
+default       nginx-deployment-d5655dd9d-gc7c9           <span class="hljs-number">1</span>/<span class="hljs-number">1</span>       Running   <span class="hljs-number">0</span>          <span class="hljs-number">17</span>h
+default       nginx-deployment-d5655dd9d-pjq5k           <span class="hljs-number">1</span>/<span class="hljs-number">1</span>       Running   <span class="hljs-number">0</span>          <span class="hljs-number">17</span>h
+kube-<span class="hljs-keyword">system</span>   etcd-master.flora.com                      <span class="hljs-number">1</span>/<span class="hljs-number">1</span>       Running   <span class="hljs-number">3</span>          <span class="hljs-number">19</span>h
+kube-<span class="hljs-keyword">system</span>   kube-apiserver-master.flora.com            <span class="hljs-number">1</span>/<span class="hljs-number">1</span>       Running   <span class="hljs-number">13</span>         <span class="hljs-number">19</span>h
+kube-<span class="hljs-keyword">system</span>   kube-controller-manager-master.flora.com   <span class="hljs-number">1</span>/<span class="hljs-number">1</span>       Running   <span class="hljs-number">9</span>          <span class="hljs-number">19</span>h
+kube-<span class="hljs-keyword">system</span>   kube-dns-<span class="hljs-number">6</span>f4fd4bdf-ds2lf                   <span class="hljs-number">3</span>/<span class="hljs-number">3</span>       Running   <span class="hljs-number">23</span>         <span class="hljs-number">19</span>h
+kube-<span class="hljs-keyword">system</span>   kube-flannel-ds-<span class="hljs-number">5</span>lhmm                      <span class="hljs-number">1</span>/<span class="hljs-number">1</span>       Running   <span class="hljs-number">0</span>          <span class="hljs-number">19</span>h
+kube-<span class="hljs-keyword">system</span>   kube-flannel-ds-cdhmr                      <span class="hljs-number">1</span>/<span class="hljs-number">1</span>       Running   <span class="hljs-number">1</span>          <span class="hljs-number">19</span>h
+kube-<span class="hljs-keyword">system</span>   kube-flannel-ds-l5w9b                      <span class="hljs-number">1</span>/<span class="hljs-number">1</span>       Running   <span class="hljs-number">0</span>          <span class="hljs-number">19</span>h
+kube-<span class="hljs-keyword">system</span>   kube-proxy-<span class="hljs-number">9794</span>w                           <span class="hljs-number">1</span>/<span class="hljs-number">1</span>       Running   <span class="hljs-number">0</span>          <span class="hljs-number">19</span>h
+kube-<span class="hljs-keyword">system</span>   kube-proxy-<span class="hljs-number">986</span>n2                           <span class="hljs-number">1</span>/<span class="hljs-number">1</span>       Running   <span class="hljs-number">0</span>          <span class="hljs-number">19</span>h
+kube-<span class="hljs-keyword">system</span>   kube-proxy-gmncl                           <span class="hljs-number">1</span>/<span class="hljs-number">1</span>       Running   <span class="hljs-number">1</span>          <span class="hljs-number">19</span>h
+kube-<span class="hljs-keyword">system</span>   kube-scheduler-master.flora.com            <span class="hljs-number">1</span>/<span class="hljs-number">1</span>       Running   <span class="hljs-number">8</span>          <span class="hljs-number">19</span>h</code></pre>
+<pre><code class="hljs bash">[root@master k8s_images]<span class="hljs-comment"># kubectl get pods -n kube-system -o wide</span>
+NAME                                       READY     STATUS    RESTARTS   AGE       IP              NODE
+etcd-master.flora.com                      1/1       Running   3          19h       192.168.20.93   master.flora.com
+kube-apiserver-master.flora.com            1/1       Running   13         19h       192.168.20.93   master.flora.com
+kube-controller-manager-master.flora.com   1/1       Running   9          19h       192.168.20.93   master.flora.com
+kube-dns-6f4fd4bdf-ds2lf                   3/3       Running   23         19h       10.244.0.4      master.flora.com
+kube-flannel-ds-5lhmm                      1/1       Running   0          19h       192.168.20.94   node1.flora.com
+kube-flannel-ds-cdhmr                      1/1       Running   1          19h       192.168.20.93   master.flora.com
+kube-flannel-ds<span class="hljs-_">-l</span>5w9b                      1/1       Running   0          19h       192.168.20.95   node2.flora.com
+kube-proxy-9794w                           1/1       Running   0          19h       192.168.20.94   node1.flora.com
+kube-proxy-986n2                           1/1       Running   0          19h       192.168.20.95   node2.flora.com
+kube-proxy-gmncl                           1/1       Running   1          19h       192.168.20.93   master.flora.com
+kube-scheduler-master.flora.com            1/1       Running   8          19h       192.168.20.93   master.flora.com</code></pre></div>
+					</div>
+																	<div class="artical-copyright">版权声明：原创作品，如需转载，请注明出处。否则将追究法律责任</div>
+												<div class="for-tag">
+											<span><a href="http://blog.51cto.com/search/result?q=kube" target="_blank">kube</a></span>
+											<span><a href="http://blog.51cto.com/search/result?q=%E7%A6%BB%E7%BA%BF%E9%83%A8%E7%BD%B2" target="_blank">离线部署</a></span>
+										<div class="clear"></div>
+				</div>
+								<div class="more-list">
+					<p class="praise fl "><span type="1" blog_id="2061943" userid="4047083">0</span></p>
+					<div class="share-box fr">
+						<p class="share">分享</p>
+						<div class="bdsharebuttonbox bdshare-button-style0-16" data-bd-bind="1525761805493">
+						  <span></span>
+						  <a href="javascript:;" class="bds_sqq" data-cmd="sqq" title="分享到QQ好友">QQ分享</a>
+						  <a href="javascript:;" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博">微博分享</a>
+						  <a href="javascript:;" class="bds_weixin" data-cmd="weixin" title="分享到微信">微信扫一扫</a>
+						  <img src="./kubernetes1.9.0_files/qr-url">
+						</div>
+					</div>
+					<p class="favorites fr">收藏</p>
+										<div class="clear"></div>
+				</div>
+									<div class="artical-list">
+                    						<a class="fl" href="http://blog.51cto.com/cstsncv/2060277" title="CentOS7 部署Kubernetes">上一篇：CentOS7 部署Kubernetes</a>
+                                        						<a class="fr" href="http://blog.51cto.com/cstsncv/2073501" title="apr_socket_recv: Connection reset by peer (104)">下一篇：apr_socket_recv: Connection reset by peer (104)</a>
+                    						<div class="clear"></div>
+					</div>
+							</div>
+						<h2 class="artical-other-title">猜你喜欢</h2>
+			<div class="artical-Left artical-border">
+				<ul class="you-like-list">
+											<li><a href="http://blog.51cto.com/mbb97/2095735" target="_blank">1、Python大数据应用——部署Hadoop</a></li>
+											<li style="margin-left: 10%;"><a href="http://blog.51cto.com/fsckyl/2095879" target="_blank">ansible 实现巡检自动化</a></li>
+											<li><a href="http://blog.51cto.com/beanxyz/2095960" target="_blank">CentOS7 安装执行 VmwareCore</a></li>
+											<li style="margin-left: 10%;"><a href="http://blog.51cto.com/wangzhijian/2096182" target="_blank">使用Prometheus Operator 监控Kubernetes</a></li>
+											<li><a href="http://blog.51cto.com/13575680/2096225" target="_blank">No.5 Nginx急速入门</a></li>
+											<li style="margin-left: 10%;"><a href="http://blog.51cto.com/beanxyz/2096349" target="_blank">Windows 下脚本远程管理数百台苹果系统</a></li>
+											<li><a href="http://blog.51cto.com/yanconggod/2096583" target="_blank">sonar搭建以及jenkins集成sonar</a></li>
+											<li style="margin-left: 10%;"><a href="http://blog.51cto.com/13590999/2096701" target="_blank">keepalived-高可用性故障转移的首选方案</a></li>
+										<div class="clear"></div>
+				</ul>
+			</div>
+						<h2 class="artical-other-title" id="comment">发表评论</h2>
+			<div class="artical-Left artical-border">
+				<!-- 发布评论 -->
+				<div class="comment-creat">
+                <div class="is-vip-bg fl">
+					<a href="javascript:;" class="header-img">
+                  <img src="./kubernetes1.9.0_files/noavatar_middle.gif">
+					</a>
+                </div>
+					<div class="first-publish fr publish_user_id">
+						<textarea class="textareadiv textareadiv-publish" name="" id="" placeholder="用心的评论会被更多人看到和认可" maxlength="500"></textarea>
+						<div class="comment-push">
+							<p class="msg fl">Ctrl+Enter&nbsp;发布</p>
+															<p class="publish-btn blue-btn fr" flag="1">发布</p>
+														<p class="cancel-btn cancel-btn-1 fr">取消</p>
+							<div class="clear"></div>
+						</div>
+						<input type="hidden" class="user_id" value="4047083">
+						<input type="hidden" class="reply_id" value="2061943">
+						<input type="hidden" class="first_pid" value="">
+					</div>
+					<div class="clear"></div>
+				</div>
+								<div class="commentList"></div>
+				<!-- page -->
+				<div class="act_pageList_box"></div>
+			</div>
+
+		</div>
+		<!-- end left -->
+		<!-- right start -->
+		<div class="Right artical-Right fr">
+			<!-- 博客名称 -->
+			<div class="Box articles blogger-name">
+				<div class="list">
+					<h4 class="BoxTil2 fl"><a class="BoxTil2-right-tit" href="http://blog.51cto.com/cstsncv">不要超过24个字符</a></h4>
+					<div class="BoxTil2-box fr">
+						<span></span>
+						<div>
+			              <img src="./kubernetes1.9.0_files/qr">
+			              <p>分享到朋友圈</p>
+						</div>
+					</div>
+					<div class="clear"></div>
+					<ul class="number-list">
+						<li>
+							<a class="num" href="javascript:;">53</a>
+							<p>文章</p>
+						</li>
+                        <li>
+                            <a class="num" href="javascript:;">3W+</a>
+                            <p>人气</p>
+                        </li>
+						<li>
+							<a class="num" href="javascript:;">0</a>
+							<p>评论</p>
+						</li>
+                                                    <li>
+                                <a class="num" href="javascript:;">4</a>
+                                <p>点赞</p>
+                            </li>
+                        
+						<div class="clear"></div>
+					</ul>
+				</div>
+			</div>
+			<!-- 博主信息 -->
+			<div class="Box articles blogger-name-msg on">
+				<div class="list blogger">
+					<div class="top">
+						<div class="is-vip-bg-4">
+							<a class="left" href="http://blog.51cto.com/cstsncv">
+								<img class="is-vip-img is-vip-img-4" data-uid="4047083" src="./kubernetes1.9.0_files/noavatar_middle.gif">
+							</a>
+						</div>
+						<div class="right">
+							<div class="name-box">
+								<a href="http://blog.51cto.com/cstsncv" class="tit fl">cstsncv</a>
+	                            																																								<div class="clear"></div>
+							</div>
+							<div class="name-btn">
+                                								<a href="http://home.51cto.com/space?uid=4047083" class="name-msg gray-btn">私信</a>
+							</div>
+						</div>
+						<div class="clear"></div>
+					</div>
+					<div class="bottom">
+						<div class="msg-title"><i class="l"></i>关注作者，不错过每一篇精彩<i class="r"></i></div>
+						<h4 class="title"><a href="javascript:;">TA的其他文章</a></h4>
+						<ul class="seven-list">
+							        						<li class="s2"><a href="http://blog.51cto.com/cstsncv/2060277">CentOS7 部署Kubernetes</a></li>
+        					        						<li class="s2"><a href="http://blog.51cto.com/cstsncv/1929082">xenserver下的SR,VDI,VBD</a></li>
+        					        						<li class="s2"><a href="http://blog.51cto.com/cstsncv/1924996">Citrix XenServer 关键配置文件</a></li>
+        					        						<li class="s2"><a href="http://blog.51cto.com/cstsncv/1917704">Citrix XenServer 异构 CPU 加入Pool</a></li>
+        					        						<li class="s2"><a href="http://blog.51cto.com/cstsncv/1917701">网络部署Xenserver6.5</a></li>
+        					      					</ul>
+					</div>
+				</div>
+			</div>
+			<!-- 七日热门 -->
+            			<h3 class="BoxTil">七日热门</h3>
+		    <div class="Box articles">
+		        <div class="list">
+		        <ul class="seven-list">
+	            	            <li class="s1"><a href="http://blog.51cto.com/wyait/2112200" target="_blank">spring boot + shiro 动态更新用户信息</a></li>
+	            	            <li class="s2"><a href="http://blog.51cto.com/13667098/2110747" target="_blank">linux下5秒创建rhel7虚拟机</a></li>
+	            	            <li class="s3"><a href="http://blog.51cto.com/sery/2112607" target="_blank">打趴系统的不一定是技术</a></li>
+	            	            <li class="s4"><a href="http://blog.51cto.com/enderjoe/2112412" target="_blank">NFV和SDN关系、NFV关键能力以及如何演进</a></li>
+	            	            <li class="s5"><a href="http://blog.51cto.com/3646344/2110424" target="_blank">在本地KVM中使用cloud-init</a></li>
+	            	            </ul>
+	            </div>
+	        </div>
+	        	        <div class="update-top"></div>
+		</div>
+		<!-- end right  -->
+		<div class="clear"></div>
+	</div>
+</div>
+
+<!-- 老博文美观处理 -->
+<script>
+	var praise_url = 'http://blog.51cto.com/praise/praise'
+	var addReply_url = 'http://blog.51cto.com/comments/add'
+	var removeUrl = 'http://blog.51cto.com/comments/del'
+	var blog_id = '2061943'
+	var rid = '0'
+	var is_comment = '0'
+	var comment_list = '/blog/ajax-comment-list'
+	var comment_sort = "asc"
+	var index_url = 'http://blog.51cto.com/cstsncv';
+    var uc_url = 'http://ucenter.51cto.com/'
+    var blog_url = 'http://blog.51cto.com/'
+    var img_url = 'http://static1.51cto.com/edu/blog/'
+    var i_user_id = ''
+    var c_user_id ='4047083'
+	var collect_url = 'http://blog.51cto.com/collect/add'
+	var is_old = '0'
+	var nicknameurl = 'http://blog.51cto.com/cstsncv'
+	var nickname = 'cstsncv'
+	var myself = window.location.href
+	$('.you-like-list li:odd').css({'margin-left': '10%'});
+	function FollowBtnSucc(e){//1:未关注,2:已关注,3:互相关注
+	    if(e==2||e==3){
+	        $.post('/index/wxbind',{uid:userId},function(res){
+	            if(getCookie('follow1') || getCookie('follow2'))return false;
+	            if(res.status==1){
+	                if(res.data.wxBind == 0){//没绑定
+	                    box1()
+	                }else{
+	                    box2()
+	                }
+	            }
+	        },'json')
+	    }
+	}
+	FollowBtn = new Follow($('#checkFollow_4047083'),'4047083','1',['on','in','mutual','off'])
+	FollowBtn.success=FollowBtnSucc
+	window._bd_share_config={
+    "common":{
+      "bdText":"kubernetes1.9离线部署",
+      "bdDesc":$("#abstract_bdshare").text(),
+      "bdMini":"2",
+      "bdMiniList":false,
+      "bdPic":"https://s1.51cto.com/images/201710/25/bd540a4f14d822f6e69087758699358b.jpg",
+      "bdStyle":"0",
+      "bdSize":"16"
+    },
+    "share":{}
+  };
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+</div>
+<script src="./kubernetes1.9.0_files/marked.min.js"></script><script src="./kubernetes1.9.0_files/highlight.js"></script><script src="./kubernetes1.9.0_files/detail_mp.js"></script><script src="./kubernetes1.9.0_files/detail.js"></script><script src="./kubernetes1.9.0_files/copy.js"></script><div class="Footer">
+    <p class="copy tc">Copyright © 2005-2018 <a href="http://www.51cto.com/" target="_blank">51CTO.COM</a> 版权所有 京ICP证060544号</p>
+  </div>
+<div class="rightTools">
+      <a href="http://blog.51cto.com/blogger/publish" class="aa">写文章</a>
+    <a href="http://wpa.qq.com/msgrd?v=3&amp;uin=3591348659&amp;site=qq&amp;menu=yes" class="qq"></a>
+  <a href="http://blog.51cto.com/51ctoblog/2057444" class="yy" target="_blank"></a>
+  <a href="javascript:void(0);" class="gotop"></a>
+</div>
+<script src="./kubernetes1.9.0_files/pvlog.js"></script>
+<script src="./kubernetes1.9.0_files/count.js"></script><script src="./kubernetes1.9.0_files/count.php"></script>
+<script>
+  $(".gotop").click(function(){$(window).scrollTop(0)})
+</script>
+
+
+    <script type="text/javascript">
+    //百度统计代码
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?2283d46608159c3b39fc9f1178809c21";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+
+    //自动推送链接
+    (function(){
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        }
+        else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+      var _vds = _vds || [];
+      window._vds = _vds;
+      (function(){
+        _vds.push(['setAccountId', '8c51975c40edfb67']);
+        (function() {
+          var vds = document.createElement('script');
+          vds.type='text/javascript';
+          vds.async = true;
+          vds.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'assets.growingio.com/vds.js';
+          var s = document.getElementsByTagName('script')[0];
+          s.parentNode.insertBefore(vds, s);
+        })();
+      })();
+      document.write(decodeURI("%3Cscript src='https://tongji.51cto.com/frontend/tj.gif' type='text/javascript'%3E%3C/script%3E"));
+    </script><script src="./kubernetes1.9.0_files/tj.gif" type="text/javascript"></script>
+    
+<!-- <script>
+  var uid = '';
+  var BLOG_URL = 'http://blog.51cto.com/';
+</script>
+<script src="https://cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+<script src="http://static1.51cto.com/edu/blog/js/time-on-page.js" charset="utf-8"></script> -->
+<script>
+    (function(){
+        var wh=$(window).height(),fh=$('.Footer').outerHeight(true),hh=$('.Header').outerHeight(true)
+        $('.Content-box').css({'min-height': wh-fh-hh})
+    })()
+</script>
+
+
+</body></html>
