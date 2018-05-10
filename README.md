@@ -1,8 +1,11 @@
 
+## 本k8s 离线安装教程是基于  https://blog.csdn.net/u012375924/article/details/78987263 知道安装，可以参照这边文章，下面的是个人总结
+
+
 1,安装是基于1.9.0 kubeadm 安装的. 链接: http://blog.51cto.com/cstsncv/2061943
 
 链接：https://pan.baidu.com/s/1pMdK0Td 密码：zjja
-或者 https://pan.baidu.com/s/1iP6AwY5fv-2muY8LDFcfhA 
+## 或者 https://pan.baidu.com/s/1iP6AwY5fv-2muY8LDFcfhA 
 
 
 环境要求 :centos7及以上
@@ -56,46 +59,43 @@ vi /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
 systemctl daemon-reload && systemctl restart kubel
 
 
-以上是master和slave节点都要进行的操作
+# 以上是master和slave节点都要进行的操作
 
 
-9, master 进行特殊的操作
+# 9, master 进行特殊的操作
 
-9.1    kubeadm init --kubernetes-version=v1.9.0 --pod-network-cidr=10.244.0.0/16
+# 9.1     kubeadm init --kubernetes-version=v1.9.0 --pod-network-cidr=10.244.0.0/16
 完成后,将kubeadm join xxx保存下来，等下node节点加入集群需要使用
 如果忘记了，可以在master上通过kubeadmin token list得到.
 如果没启动起来,执行第8步操作,修改文件,启动服务
-9.2    kubeadm reset
-9.3
+# 9.2    kubeadm reset
+# 9.3
 在重新执行:
 kubeadm init --kubernetes-version=v1.9.0 --pod-network-cidr=10.244.0.0/16
 
-9.4
+# 9.4
 此时root用户还不能使用kubelet控制集群需要，按提示配置下环境变量
 对于root用户
-
      export KUBECONFIG=/etc/kubernetes/admin.conf
 也可以直接放到~/.bash_profile
     echo "export KUBECONFIG=/etc/kubernetes/admin.conf" >> ~/.bash_profile
-
-
 source一下环境变量
-9.5
+# 9.5
 source ~/.bash_profile
-9.6
+
+# 9.6
 kubectl version测试:
 [root@master k8s_images]# kubectl version
 
 
-9.7
+#  9.7
 kubectl create -f kube-flannel.yml
 
 
-10,  slave 要进行的特殊操作
+## 10,  slave 要进行的特殊操作
 
 在执行前八步之后,slave 只需要执行 集群加入操作即可.
    kubeadm join --token 5ca674.b6852c3519d873de 10.113.1.191:6443 --discovery-token-ca-cert-hash sha256:93e7ce2b7475585b4cddabeeb9e67eba1160583d3387ef518a4b8620f3258aac
-
 
 
 
@@ -104,6 +104,38 @@ kubectl create -f kube-flannel.yml
 https://blog.csdn.net/newcrane/article/details/78719349
 
 https://blog.csdn.net/u012375924/article/details/78987263
+
+
+
+
+
+https://10.113.1.191:32666/#!/login
+
+
+
+# kubectl -n kube-system get secret | grep kubernetes-dashboard-admin
+         kubernetes-dashboard-admin-token-hwwcs           kubernetes.io/service-account-token   3         2m
+
+[root@php-server-191 k8s_images]# kubectl -n kube-system get secret | grep kubernetes-dashboard-token
+kubernetes-dashboard-token-4dcxv                 kubernetes.io/service-account-token   3         32m
+
+[root@php-server-191 k8s_images]# kubectl describe -n kube-system secret/kubernetes-dashboard-token-4dcxv
+
+
+
+获取目前的服务信息.
+
+
+
+
+k8s 部署nginx 容器服务.
+
+http://www.cnblogs.com/puroc/p/5764330.html
+nginx 的服务信息.
+http://10.113.1.191:31740/
+
+
+#### 相关的k8s操作命令
 
 
 
@@ -130,38 +162,8 @@ kubectl get pods -n kube-system -o wide |grep kubernetes-dashboard
 删除相关服务 
 kubectl delete -f kubernetes-dashboard.yaml
 
-
 kubectl  logs kubernetes-dashboard-7486b894c6-x2dtv --namespace=kube-system
 
-
-https://10.113.1.191:32666/#!/login
-
-
-
-
-
-
-# kubectl -n kube-system get secret | grep kubernetes-dashboard-admin
-         kubernetes-dashboard-admin-token-hwwcs           kubernetes.io/service-account-token   3         2m
-
-[root@php-server-191 k8s_images]# kubectl -n kube-system get secret | grep kubernetes-dashboard-token
-kubernetes-dashboard-token-4dcxv                 kubernetes.io/service-account-token   3         32m
-
-[root@php-server-191 k8s_images]# kubectl describe -n kube-system secret/kubernetes-dashboard-token-4dcxv
-
-
-
-获取目前的服务信息.
-
 kubectl get service
-
-
-k8s 部署nginx 容器服务.
-
-http://www.cnblogs.com/puroc/p/5764330.html
-nginx 的服务信息.
-http://10.113.1.191:31740/
-
-
  
 
