@@ -1,12 +1,13 @@
 
-## 本k8s 离线安装教程是基于  https://blog.csdn.net/u012375924/article/details/78987263 知道安装，可以参照这边文章，下面的是个人总结
+## 本k8s 离线安装教程是基于  https://blog.csdn.net/u012375924/article/details/78987263 文章安装，也可以参照这篇文章
+
+## 下面的是个人总结：
 
 
 1,安装是基于1.9.0 kubeadm 安装的. 链接: http://blog.51cto.com/cstsncv/2061943
 
 链接：https://pan.baidu.com/s/1pMdK0Td 密码：zjja
 ## 或者 https://pan.baidu.com/s/1iP6AwY5fv-2muY8LDFcfhA 
-
 
 环境要求 :centos7及以上
 
