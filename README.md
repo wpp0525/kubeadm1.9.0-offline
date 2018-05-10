@@ -93,7 +93,7 @@ kubectl version测试:
 kubectl create -f kube-flannel.yml
 
 
-## 10,  slave 要进行的特殊操作
+### 10,  slave 要进行的特殊操作
 
 在执行前八步之后,slave 只需要执行 集群加入操作即可.
    kubeadm join --token 5ca674.b6852c3519d873de 10.113.1.191:6443 --discovery-token-ca-cert-hash sha256:93e7ce2b7475585b4cddabeeb9e67eba1160583d3387ef518a4b8620f3258aac
@@ -107,64 +107,5 @@ https://blog.csdn.net/newcrane/article/details/78719349
 https://blog.csdn.net/u012375924/article/details/78987263
 
 
-
-
-
-https://10.113.1.191:32666/#!/login
-
-
-
-# kubectl -n kube-system get secret | grep kubernetes-dashboard-admin
-         kubernetes-dashboard-admin-token-hwwcs           kubernetes.io/service-account-token   3         2m
-
-[root@php-server-191 k8s_images]# kubectl -n kube-system get secret | grep kubernetes-dashboard-token
-kubernetes-dashboard-token-4dcxv                 kubernetes.io/service-account-token   3         32m
-
-[root@php-server-191 k8s_images]# kubectl describe -n kube-system secret/kubernetes-dashboard-token-4dcxv
-
-
-
-获取目前的服务信息.
-
-
-
-
-k8s 部署nginx 容器服务.
-
-http://www.cnblogs.com/puroc/p/5764330.html
-nginx 的服务信息.
-http://10.113.1.191:31740/
-
-
-#### 相关的k8s操作命令
-
-
-
-导入image包
-
-docker load < kubernetes-dashboard_v1.8.1.tar
-
-[root@php-server-191 k8s_images]# kubectl create -f kubernetes-dashboard.yaml
-secret "kubernetes-dashboard-certs" created
-serviceaccount "kubernetes-dashboard" created
-role "kubernetes-dashboard-minimal" created
-rolebinding "kubernetes-dashboard-minimal" created
-deployment "kubernetes-dashboard" created
-service "kubernetes-dashboard" created
-
-
-
-http://10.113.1.191:32666/
-
-kubectl get pods -n kube-system -o wide
-
-kubectl get pods -n kube-system -o wide |grep kubernetes-dashboard
-
-删除相关服务 
-kubectl delete -f kubernetes-dashboard.yaml
-
-kubectl  logs kubernetes-dashboard-7486b894c6-x2dtv --namespace=kube-system
-
-kubectl get service
  
 
